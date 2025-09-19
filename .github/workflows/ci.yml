@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Register WPNonceAnalysis standard
+        run: |
+          vendor/bin/phpcs --config-set installed_paths "$GITHUB_WORKSPACE"
+          vendor/bin/phpcs -i
+
+      # (Optional) Sanity check: run `php -l` on the sniff files themselves
+      - name: Lint PHP syntax in sniffs
+        run: |
+          find WPNonceAnalysis -type f -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      # Ensure the repo (excluding the demo) does not trigger any findings
+      - name: PHPCS on repo (exclude demo & vendor)
+        run: |
+          vendor/bin/phpcs -s --report=summary --standard=WPNonceAnalysis \
+            --ignore=examples/wpnonce-demo/**,vendor/** .
+
+      # Negative demo: it should intentionally trigger violations -> exit=1 is treated as SUCCESS
+      - name: PHPCS on demo (expected violations)
+        run: |
+          set +e
+          vendor/bin/phpcs -s --report=summary --standard=WPNonceAnalysis examples/wpnonce-demo
+          rc=$?
+          echo "PHPCS exit code: $rc"
+          if [ "$rc" -eq 1 ]; then
+            echo "::notice::Expected violations detected in examples/wpnonce-demo (this is good)."
+            exit 0
+          elif [ "$rc" -eq 0 ]; then
+            echo "::error::No violations found in intentionally insecure demo. Check the sniffs."
+            exit 1
+          else
+            echo "::error::PHPCS exited with unexpected code $rc."
+            exit $rc
+          fi

@@ -1,0 +1,21 @@
+# Composer
+/vendor/
+/composer.phar
+
+# PHPCS caches
+.phpcs-cache
+
+# PHPUnit
+.phpunit.result.cache
+
+# IDE / OS
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node (jika ada bawaan)
+/node_modules/
