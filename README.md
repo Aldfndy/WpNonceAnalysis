@@ -1,6 +1,6 @@
 # WPNonceAnalysis — WordPress Nonce Static Analysis (PHPCS Standard)
 
-**WPNonceAnalysis** is a custom **PHP_CodeSniffer (PHPCS)** standard that detects **nonce generation, verification, and implementation quality** in WordPress codebases to mitigate CSRF risks. Designed for **research/theses**.
+**WPNonceAnalysis** is a custom **PHP_CodeSniffer (PHPCS)** standard that detects **nonce generation, verification, and implementation quality** in WordPress codebases to mitigate CSRF risks.
 
 ## Key Features
 - **Nonce Generation Sniff** — flags missing nonce generation in common WordPress contexts (forms, `add_meta_box` callbacks, AJAX handlers, REST endpoints).
